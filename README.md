@@ -20,3 +20,4 @@
 ## III (2)
 
 1. SSO (Passport|Socialite)
+2. Comunicacaoo entre API's (machine-to-machine/client_credentials_grant)
