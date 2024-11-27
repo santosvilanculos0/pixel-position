@@ -54,7 +54,7 @@ class User extends Component
         }
 
         if (isset($this->logo)) {
-            $this->logo_path = $this->logo->store(path: 'logos');
+            $this->logo_path = $this->logo->store('logos', ['disk' => 'public']);
         }
 
         $user->employer()->update([
