@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\JobResource;
 use App\Models\Job;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,21 +20,10 @@ class JobController extends Controller
      */
     public function index()
     {
-        $jobs = Job::latest()->with(['employer', 'tags'])->get()->groupBy('featured');
+        $jobs = Job::query()
+            ->paginate();
 
-        return view('jobs.index', [
-            'jobs' => $jobs[0],
-            'featuredJobs' => $jobs[1],
-            'tags' => Tag::all(),
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('jobs.create');
+        return JobResource::collection($jobs);
     }
 
     /**
@@ -41,7 +33,7 @@ class JobController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'min:2', 'max:255'],
-            'salary' => ['required', 'string', 'min:2', 'max:255'],
+            'salary' => ['required'], 'string', 'min:2', 'max:255',
             'location' => ['required', 'string', 'min:2', 'max:255'],
             'schedule' => ['required', Rule::in(['Part Time', 'Full Time'])],
             'url' => ['required', 'url'],
@@ -51,7 +43,7 @@ class JobController extends Controller
         $validated['featured'] = $request->has('featured');
 
         try {
-            DB::transaction(function () use ($validated) {
+            DB::transaction(function () use ($validated, $request) {
                 $job = Auth::user()->employer->jobs()->create(Arr::except($validated, 'tags'));
 
                 if ($validated['tags'] ?? false) {
@@ -63,30 +55,36 @@ class JobController extends Controller
                         }
                     }
                 }
+
+                return (new JobResource($job))
+                    ->response($request)
+                    ->setStatusCode(Response::HTTP_CREATED);
             });
         } catch (\Throwable $throwable) {
-            return back()
-                ->withInput()
-                ->with('status', $throwable->getMessage());
+            return response()->json(['message' => $throwable->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return redirect('/');
     }
 
-    public function edit(Job $job)
+    /**
+     * Display the specified resource.
+     */
+    public function show(Job $job)
     {
-        return view('jobs.edit', ['job' => $job]);
+        return JobResource::make($job);
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, Job $job)
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'min:2', 'max:255', 'string', 'min:2', 'max:255'],
-            'salary' => ['required', 'string', 'min:2', 'max:255', 'string', 'min:2', 'max:255'],
-            'location' => ['required', 'string', 'min:2', 'max:255', 'string', 'min:2', 'max:255'],
+            'title' => ['required', 'string', 'min:2', 'max:255'],
+            'salary' => ['required', 'string', 'min:2', 'max:255'],
+            'location' => ['required', 'string', 'min:2', 'max:255'],
             'schedule' => ['required', Rule::in(['Part Time', 'Full Time'])],
             'url' => ['required', 'url'],
-            'tags' => ['nullable', 'string', 'min:2', 'max:255', 'string', 'min:2', 'max:255'],
+            'tags' => ['nullable', 'string', 'min:2', 'max:255'],
         ]);
 
         $validated['featured'] = $request->has('featured');
@@ -104,13 +102,21 @@ class JobController extends Controller
                         }
                     }
                 }
+
+                return JobResource::make($job);
             });
         } catch (\Throwable $throwable) {
-            return back()
-                ->withInput()
-                ->with('status', $throwable->getMessage());
+            return response()->json(['message' => $throwable->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
 
-        return to_route('jobs.index');
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Job $job)
+    {
+        $job->delete();
+
+        return response()->json();
     }
 }

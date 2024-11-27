@@ -1,5 +1,5 @@
 <div>
-    <x-page-heading>Update Job</x-page-heading>
+    <x-page-heading>Update Information</x-page-heading>
 
     @session('status')
         <div class="mb-4">

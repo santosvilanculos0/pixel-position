@@ -59,7 +59,7 @@
 
         <nav class="flex justify-center items-center py-4 border-t border-white/10">
             <div class="space-x-6 font-bold">
-                <a href="#">User</a>
+                <a href="{{ route('user') }}" @class(['underline' => Route::is('user')])>Account</a>
                 <a href="#">Applications</a>
                 <a href="{{ route('jobs.index') }}" @class(['underline' => Route::is('jobs.index')])>My Jobs</a>
             </div>

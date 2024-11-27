@@ -22,7 +22,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::delete('/logout', [SessionController::class, 'destroy'])->name('logout');
 
-    Route::get('/user', User::class)->name('jobs.index');
+    Route::get('/user', User::class)->name('user');
 
     Route::get('/jobs', Jobs::class)->name('jobs.index');
     Route::get('/jobs/create', [JobController::class, 'create'])->name('jobs.create');
