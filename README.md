@@ -8,7 +8,7 @@
 
 1. Segurança em aplicações web
 
-- Autenticação e Autorização
+- Autenticação
 - Transações (DB:transaction()|DB:commit()|DB:rollback())
 
 2. Optimização e Performance
