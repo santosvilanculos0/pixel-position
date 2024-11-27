@@ -10,6 +10,7 @@
     @endsession
 
     <x-forms.form method="POST" action="{{ route('jobs.store') }}">
+        @csrf
         <x-forms.input label="Title" name="title" placeholder="CEO" />
         <x-forms.input label="Salary" name="salary" placeholder="$90,000 USD" />
         <x-forms.input label="Location" name="location" placeholder="Winter Park, Florida" />
@@ -26,6 +27,7 @@
 
         <x-forms.input label="Tags (comma separated)" name="tags" placeholder="laracasts, video, education" />
 
+        <div class="mb-2"></div>
         <x-forms.button>Publish</x-forms.button>
     </x-forms.form>
 </x-layouts.app>

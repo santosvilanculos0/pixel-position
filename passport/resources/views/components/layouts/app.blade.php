@@ -61,7 +61,7 @@
             <div class="space-x-6 font-bold">
                 <a href="#">User</a>
                 <a href="#">Applications</a>
-                <a href="#">My Jobs</a>
+                <a href="{{ route('jobs.index') }}" @class(['underline' => Route::is('jobs.index')])>My Jobs</a>
             </div>
         </nav>
     </div>

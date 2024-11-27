@@ -6,6 +6,7 @@
         </div>
 
         <x-forms.form class="mt-10" method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
+            @csrf
             <x-forms.input label="Name" name="name" />
             <x-forms.input label="Email" name="email" type="email" />
             <x-forms.input label="Password" name="password" type="password" />

@@ -72,4 +72,45 @@ class JobController extends Controller
 
         return redirect('/');
     }
+
+    public function edit(Job $job)
+    {
+        return view('jobs.edit', ['job' => $job]);
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => ['required'],
+            'salary' => ['required'],
+            'location' => ['required'],
+            'schedule' => ['required', Rule::in(['Part Time', 'Full Time'])],
+            'url' => ['required', 'url'],
+            'tags' => ['nullable'],
+        ]);
+
+        $validated['featured'] = $request->has('featured');
+
+        try {
+            DB::transaction(function () use ($validated) {
+                $job = Auth::user()->employer->jobs()->create(Arr::except($validated, 'tags'));
+
+                if ($validated['tags'] ?? false) {
+                    foreach (explode(',', $validated['tags']) as $tag) {
+                        if (! empty(trim($tag))) {
+                            $tag = Tag::firstOrCreate(['name' => strtolower(trim($tag))]);
+                            $job->tags()->detach();
+                            $job->tags()->attach($tag);
+                        }
+                    }
+                }
+            });
+        } catch (\Throwable $throwable) {
+            return back()
+                ->withInput()
+                ->with('status', $throwable->getMessage());
+        }
+
+        return to_route('jobs.index');
+    }
 }

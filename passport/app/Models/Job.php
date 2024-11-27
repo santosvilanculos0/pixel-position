@@ -18,6 +18,13 @@ class Job extends Model
         $this->tags()->attach($tag);
     }
 
+    protected function casts(): array
+    {
+        return [
+            'featured' => 'boolean',
+        ];
+    }
+
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
